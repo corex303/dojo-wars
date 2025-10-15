@@ -1,0 +1,158 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+env:
+  NODE_VERSION: '18'
+
+jobs:
+  create-release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    outputs:
+      upload_url: ${{ steps.create_release.outputs.upload_url }}
+      version: ${{ steps.get_version.outputs.version }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Get version
+        id: get_version
+        run: echo "version=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Dojo Wars ${{ steps.get_version.outputs.version }}
+          draft: false
+          prerelease: false
+          body: |
+            ## 🎮 Dojo Wars Release ${{ steps.get_version.outputs.version }}
+            
+            ### What's New
+            
+            <!-- Add release notes here -->
+            
+            ### Backend (BOLT Programs)
+            - Solana smart contracts for game logic
+            - Deploy to devnet/mainnet using BOLT CLI
+            
+            ### Frontend
+            - React + Phaser web client
+            - Full battle system with animations
+            - MagicBlock integration
+            
+            ### Installation
+            
+            See [QUICK_START.md](https://github.com/corex303/dojo-wars/blob/main/QUICK_START.md) for setup instructions.
+            
+            ### Documentation
+            - [README.md](https://github.com/corex303/dojo-wars/blob/main/README.md)
+            - [DEVELOPMENT.md](https://github.com/corex303/dojo-wars/blob/main/DEVELOPMENT.md)
+            - [IMPLEMENTATION_SUMMARY.md](https://github.com/corex303/dojo-wars/blob/main/IMPLEMENTATION_SUMMARY.md)
+
+  build-backend:
+    name: Build Backend Artifacts
+    runs-on: ubuntu-latest
+    needs: create-release
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          toolchain: stable
+
+      - name: Install Solana CLI
+        run: |
+          sh -c "$(curl -sSfL https://release.solana.com/v1.17.0/install)"
+          echo "$HOME/.local/share/solana/install/active_release/bin" >> $GITHUB_PATH
+
+      - name: Install BOLT CLI
+        run: cargo install --git https://github.com/magicblock-labs/bolt bolt-cli
+
+      - name: Build programs
+        working-directory: backend
+        run: bolt build
+
+      - name: Create backend archive
+        run: |
+          mkdir -p release/backend
+          cp -r backend/target/deploy/*.so release/backend/ || echo "No .so files"
+          cp -r backend/target/idl/*.json release/backend/ || echo "No IDL files"
+          cd release && tar -czf backend-${{ needs.create-release.outputs.version }}.tar.gz backend/
+
+      - name: Upload backend artifact
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.create-release.outputs.upload_url }}
+          asset_path: ./release/backend-${{ needs.create-release.outputs.version }}.tar.gz
+          asset_name: backend-${{ needs.create-release.outputs.version }}.tar.gz
+          asset_content_type: application/gzip
+
+  build-frontend:
+    name: Build Frontend Artifacts
+    runs-on: ubuntu-latest
+    needs: create-release
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Build frontend
+        working-directory: frontend
+        run: npm run build
+        env:
+          VITE_SOLANA_NETWORK: devnet
+          VITE_SOLANA_RPC_URL: https://api.devnet.solana.com
+
+      - name: Create frontend archive
+        run: |
+          cd frontend && tar -czf ../frontend-${{ needs.create-release.outputs.version }}.tar.gz dist/
+
+      - name: Upload frontend artifact
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.create-release.outputs.upload_url }}
+          asset_path: ./frontend-${{ needs.create-release.outputs.version }}.tar.gz
+          asset_name: frontend-${{ needs.create-release.outputs.version }}.tar.gz
+          asset_content_type: application/gzip
+
+  publish-summary:
+    name: Publish Release Summary
+    runs-on: ubuntu-latest
+    needs: [create-release, build-backend, build-frontend]
+    steps:
+      - name: Summary
+        run: |
+          echo "## 🎉 Release Published" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Version:** ${{ needs.create-release.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Tag:** ${{ github.ref }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Artifacts" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Backend programs" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Frontend build" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "See the [release page](https://github.com/corex303/dojo-wars/releases) for downloads." >> $GITHUB_STEP_SUMMARY
+

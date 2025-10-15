@@ -1,0 +1,144 @@
+name: Deploy to Devnet
+
+on:
+  workflow_dispatch:
+    inputs:
+      deploy_backend:
+        description: 'Deploy backend programs'
+        required: true
+        type: boolean
+        default: true
+      deploy_frontend:
+        description: 'Deploy frontend'
+        required: true
+        type: boolean
+        default: false
+
+env:
+  NODE_VERSION: '18'
+  RUST_VERSION: 'stable'
+
+jobs:
+  deploy-backend:
+    name: Deploy BOLT Programs to Devnet
+    runs-on: ubuntu-latest
+    if: ${{ github.event.inputs.deploy_backend == 'true' }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          toolchain: ${{ env.RUST_VERSION }}
+
+      - name: Install Solana CLI
+        run: |
+          sh -c "$(curl -sSfL https://release.solana.com/v1.17.0/install)"
+          echo "$HOME/.local/share/solana/install/active_release/bin" >> $GITHUB_PATH
+
+      - name: Cache Solana & Cargo
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cache/solana/
+            ~/.local/share/solana/
+            ~/.cargo/
+            backend/target/
+          key: ${{ runner.os }}-deploy-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Install BOLT CLI
+        run: cargo install --git https://github.com/magicblock-labs/bolt bolt-cli
+
+      - name: Setup Solana keypair
+        run: |
+          mkdir -p ~/.config/solana
+          echo "${{ secrets.SOLANA_DEPLOYER_KEY }}" > ~/.config/solana/id.json
+          chmod 600 ~/.config/solana/id.json
+          solana config set --url https://api.devnet.solana.com
+
+      - name: Check balance
+        run: |
+          echo "Deployer address: $(solana address)"
+          echo "Balance: $(solana balance)"
+
+      - name: Build programs
+        working-directory: backend
+        run: bolt build
+
+      - name: Deploy programs
+        working-directory: backend
+        run: |
+          echo "🚀 Deploying BOLT programs to devnet..."
+          bolt deploy --network devnet
+          
+      - name: Save program IDs
+        run: |
+          echo "Programs deployed successfully!"
+          echo "Program IDs have been updated in Anchor.toml"
+          
+      - name: Create deployment summary
+        run: |
+          echo "## 🚀 Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Network:** Devnet" >> $GITHUB_STEP_SUMMARY
+          echo "**Time:** $(date)" >> $GITHUB_STEP_SUMMARY
+          echo "**Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Programs Deployed" >> $GITHUB_STEP_SUMMARY
+          echo "- Ninja Component" >> $GITHUB_STEP_SUMMARY
+          echo "- Clan Component" >> $GITHUB_STEP_SUMMARY
+          echo "- Battle Component" >> $GITHUB_STEP_SUMMARY
+          echo "- Weapon Component" >> $GITHUB_STEP_SUMMARY
+          echo "- Relic Component" >> $GITHUB_STEP_SUMMARY
+          echo "- Player Profile Component" >> $GITHUB_STEP_SUMMARY
+          echo "- Init Clan System" >> $GITHUB_STEP_SUMMARY
+          echo "- Recruit System" >> $GITHUB_STEP_SUMMARY
+          echo "- Train System" >> $GITHUB_STEP_SUMMARY
+          echo "- Battle System" >> $GITHUB_STEP_SUMMARY
+
+  deploy-frontend:
+    name: Deploy Frontend to Vercel
+    runs-on: ubuntu-latest
+    if: ${{ github.event.inputs.deploy_frontend == 'true' }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Build frontend
+        working-directory: frontend
+        run: npm run build
+        env:
+          VITE_SOLANA_NETWORK: devnet
+          VITE_SOLANA_RPC_URL: https://api.devnet.solana.com
+          VITE_MAGICBLOCK_ER_RPC: https://devnet.magicblock.app
+          VITE_DOJO_WARS_PROGRAM_ID: ${{ secrets.DOJO_WARS_PROGRAM_ID }}
+          VITE_DELEGATION_PROGRAM_ID: DELeGGvXpWV2fqJUhqcF5ZSYMS4JTLjteaAMARRSaeSh
+          VITE_VRF_PROGRAM_ID: Vrf1RNUjXmQGjmQrQLvJHs9SNkvDJEsRVFPkfSQUwbRPBi
+
+      - name: Deploy to Vercel
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          working-directory: frontend
+          vercel-args: '--prod'
+
+      - name: Create deployment summary
+        run: |
+          echo "## 🌐 Frontend Deployed" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Platform:** Vercel" >> $GITHUB_STEP_SUMMARY
+          echo "**Network:** Devnet" >> $GITHUB_STEP_SUMMARY
+          echo "**Time:** $(date)" >> $GITHUB_STEP_SUMMARY
+
