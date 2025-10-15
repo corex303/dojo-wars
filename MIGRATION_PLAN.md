@@ -11,7 +11,7 @@
 | Phase | Status | Progress | Start Date | End Date |
 |-------|--------|----------|------------|----------|
 | **Phase 0: Foundation** | ✅ Complete | 100% | 2025-01-15 | 2025-01-15 |
-| **Phase 1: Deployment & Integration** | 🔵 Ready | 0% | TBD | TBD |
+| **Phase 1: Deployment & Integration** | 🔵 In Progress | 15% | 2025-01-15 | TBD |
 | **Phase 2: SDK Integration** | ⚪ Pending | 0% | TBD | TBD |
 | **Phase 3: Enhanced Features** | ⚪ Pending | 0% | TBD | TBD |
 | **Phase 4: Social Systems** | ⚪ Pending | 0% | TBD | TBD |
@@ -143,19 +143,19 @@ Build complete game foundation with BOLT programs, React + Phaser frontend, and 
 **Estimated Time**: 4-8 hours  
 **Prerequisites**: BOLT CLI installed, GitHub repo created
 
-### Step 1.1: GitHub Setup (⚪ Not Started)
+### Step 1.1: GitHub Setup (✅ Complete)
 **Estimated Time**: 5 minutes
 
-- [ ] Create repository at https://github.com/new
+- [x] Create repository at https://github.com/new
   - Owner: `corex303`
   - Name: `dojo-wars`
   - Public visibility
   - No README/gitignore/license (we have them)
-- [ ] Push code: `git push -u origin main`
-- [ ] Verify 3 commits appear
-- [ ] Verify GitHub Actions are active
+- [x] Push code: `git push -u origin main`
+- [x] Verify 5 commits appear
+- [x] Verify GitHub Actions are active
 
-**Verification**: Repository visible, workflows show in Actions tab
+**Verification**: ✅ Repository live at https://github.com/corex303/dojo-wars
 
 ### Step 1.2: BOLT CLI Installation (⚪ Not Started)
 **Estimated Time**: 10 minutes
@@ -684,6 +684,15 @@ export function initializeBoltClient(connection: Connection) {
 ---
 
 ## 🔄 UPDATE LOG
+
+### 2025-01-15 (Session 1 - Continued)
+- ✅ Installed GitHub CLI (gh)
+- ✅ Authenticated as corex303
+- ✅ Created repository: https://github.com/corex303/dojo-wars
+- ✅ Pushed all 5 commits successfully
+- ✅ Repository is PUBLIC and live
+- ✅ Phase 1, Step 1.1 complete
+- 🎯 Next: Install BOLT CLI and deploy to devnet (Phase 1.2)
 
 ### 2025-01-15 (Session 1)
 - ✅ Created complete foundation (Phase 0)
