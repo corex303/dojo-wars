@@ -1,0 +1,15 @@
+[package]
+name = "battle"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "lib"]
+name = "battle"
+
+[dependencies]
+bolt-lang = { version = "0.1.0", features = ["cpi"] }
+battle = { path = "../../components/battle" }
+clan = { path = "../../components/clan" }
+ninja = { path = "../../components/ninja" }
+

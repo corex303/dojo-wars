@@ -1,0 +1,39 @@
+{
+  "name": "dojo-wars",
+  "version": "0.1.0",
+  "description": "Ninja-themed idle clan battler on Solana with MagicBlock Ephemeral Rollups",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
+  "scripts": {
+    "frontend": "cd frontend && npm run dev",
+    "backend": "cd backend && bolt build",
+    "test": "cd backend && bolt test",
+    "build": "npm run build --workspaces",
+    "clean": "rm -rf node_modules frontend/node_modules backend/node_modules"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "typescript": "^5.3.3"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/corex303/dojo-wars"
+  },
+  "keywords": [
+    "solana",
+    "blockchain",
+    "game",
+    "magicblock",
+    "phaser",
+    "nft"
+  ],
+  "author": "Dojo Wars Team",
+  "license": "MIT"
+}
+

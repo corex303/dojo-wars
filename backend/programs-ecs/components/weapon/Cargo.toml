@@ -1,0 +1,12 @@
+[package]
+name = "weapon"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "lib"]
+name = "weapon"
+
+[dependencies]
+bolt-lang = { version = "0.1.0", features = ["cpi"] }
+

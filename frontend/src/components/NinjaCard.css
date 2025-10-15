@@ -1,0 +1,157 @@
+.ninja-card {
+  background: rgba(0, 0, 0, 0.7);
+  border-radius: 12px;
+  border: 2px solid rgba(102, 126, 234, 0.5);
+  padding: 15px;
+  cursor: pointer;
+  transition: all 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+
+.ninja-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+  border-width: 3px;
+}
+
+.ninja-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.ninja-level {
+  font-weight: bold;
+  font-size: 1.1rem;
+  color: #fff;
+}
+
+.ninja-element {
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.ninja-avatar {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 15px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3rem;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+}
+
+.ninja-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.stat-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.stat-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #aaa;
+  min-width: 30px;
+}
+
+.stat-value {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+}
+
+.stat-bar-bg {
+  flex: 1;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.stat-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.3s;
+}
+
+.stat-bar-fill.health {
+  background: linear-gradient(90deg, #4caf50 0%, #8bc34a 100%);
+}
+
+.stat-row {
+  display: flex;
+  justify-content: space-around;
+  gap: 10px;
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-weight: 600;
+  background: rgba(102, 126, 234, 0.1);
+  padding: 5px 12px;
+  border-radius: 6px;
+  flex: 1;
+  justify-content: center;
+}
+
+.stat-icon {
+  font-size: 1.2rem;
+}
+
+.exp-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 5px;
+}
+
+.exp-label {
+  font-size: 0.75rem;
+  color: #888;
+  min-width: 30px;
+}
+
+.exp-bar-bg {
+  flex: 1;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.exp-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+  border-radius: 3px;
+  transition: width 0.3s;
+}
+
+.training-cooldown {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: rgba(255, 152, 0, 0.9);
+  padding: 5px;
+  text-align: center;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: white;
+}
+

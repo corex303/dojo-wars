@@ -1,0 +1,15 @@
+[package]
+name = "recruit"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "lib"]
+name = "recruit"
+
+[dependencies]
+bolt-lang = { version = "0.1.0", features = ["cpi"] }
+ninja = { path = "../../components/ninja" }
+clan = { path = "../../components/clan" }
+player_profile = { path = "../../components/player_profile" }
+
