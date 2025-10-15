@@ -66,11 +66,14 @@ jobs:
         working-directory: backend
         run: bolt build
 
+      - name: Configure Solana for devnet
+        run: solana config set --url https://api.devnet.solana.com
+
       - name: Deploy programs
         working-directory: backend
         run: |
           echo "🚀 Deploying BOLT programs to devnet..."
-          bolt deploy --network devnet
+          bolt deploy
           
       - name: Save program IDs
         run: |
